@@ -22,7 +22,7 @@ const getFnProps = (): NodejsFunctionProps => {
   return nodeJsFnProps;
 };
 
-export class LambdaConstruct extends Construct {
+export class FileUploadLambdaConstruct extends Construct {
   public readonly fileUploadFn: NodejsFunction;
   constructor(scope: Construct, id: string, props: ILambdaConstruct) {
     super(scope, id);
