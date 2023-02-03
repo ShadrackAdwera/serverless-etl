@@ -30,8 +30,8 @@ export class FileUploadLambdaConstruct extends Construct {
   }
 
   private createLambda(props: ILambdaConstruct): NodejsFunction {
-    const lambdFn = new NodejsFunction(this, 'tasks-lambdafn', {
-      entry: path.join(__dirname, '/../../src/tasks/index.ts'),
+    const lambdFn = new NodejsFunction(this, 'file-upload-lambdafn', {
+      entry: path.join(__dirname, '/../../src/file-upload/index.ts'),
       environment: {
         DYNAMODB_TABLE_NAME: props.fileUploadTable.tableName,
         PRIMARY_KEY: 'id',
