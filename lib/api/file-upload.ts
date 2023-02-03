@@ -35,7 +35,7 @@ export class FileUploadApiGateway extends Construct {
       authorizer: auth,
       authorizationType: AuthorizationType['COGNITO'],
     };
-    const fileUpload = fileUploadApiGateway.root.addResource('fileUpload');
+    const fileUpload = fileUploadApiGateway.root.addResource('file-upload');
     fileUpload.addMethod('POST', httpIntegration, options);
   }
 }
