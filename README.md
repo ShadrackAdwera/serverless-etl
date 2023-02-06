@@ -18,7 +18,7 @@
 - Event Bridge
 - Lambda
 - SQS
-- SNS? Maybe to notify on successful data upload? We shall see . . .
+- SNS? Maybe to notify on successful data upload? Triggered through DynamoDb streams? We shall see . . .
 
 ## Useful commands
 
