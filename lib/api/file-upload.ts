@@ -28,6 +28,8 @@ export class FileUploadApiGateway extends Construct {
       deployOptions: {
         stageName: 'dev',
       },
+
+      // binaryMediaTypes: ['*/*'],
     });
 
     const httpIntegration = new LambdaIntegration(fileUploadFn);
@@ -36,6 +38,7 @@ export class FileUploadApiGateway extends Construct {
       authorizationType: AuthorizationType['COGNITO'],
     };
     const fileUpload = fileUploadApiGateway.root.addResource('file-upload');
-    fileUpload.addMethod('POST', httpIntegration, options);
+    fileUpload.addMethod('GET', httpIntegration, options);
+    fileUpload.addMethod('PUT', httpIntegration, options);
   }
 }

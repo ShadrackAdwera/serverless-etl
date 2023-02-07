@@ -12,6 +12,8 @@ import { Construct } from 'constructs';
 
 export class CognitoAuthorizer extends Construct {
   public readonly cognitoAuthorizer: IAuthorizer;
+  userPoolId: string;
+  userPoolClientId: string;
   constructor(scope: Construct, id: string) {
     super(scope, id);
     this.cognitoAuthorizer = this.authorizer();
@@ -33,7 +35,7 @@ export class CognitoAuthorizer extends Construct {
       },
       accountRecovery: AccountRecovery['EMAIL_ONLY'],
     });
-    pool.addClient('auth-flow', {
+    const { userPoolClientId } = pool.addClient('auth-flow', {
       authFlows: {
         adminUserPassword: true,
         userPassword: true,
@@ -43,6 +45,8 @@ export class CognitoAuthorizer extends Construct {
       userPoolClientName: 'auth-user-pool',
       supportedIdentityProviders: [UserPoolClientIdentityProvider['COGNITO']],
     });
+    this.userPoolId = pool.userPoolId;
+    this.userPoolClientId = userPoolClientId;
     return pool;
   }
 
