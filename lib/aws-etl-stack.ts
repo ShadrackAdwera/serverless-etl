@@ -15,7 +15,7 @@ export class AwsEtlStack extends cdk.Stack {
       this,
       'dynamodb-file-upload-table'
     );
-    //const { bucket } = new EtlS3Construct(this, 'aws-etl-project-s3-bucket');
+    const { bucket } = new EtlS3Construct(this, 'aws-etl-project-s3-bucket');
     const { cognitoAuthorizer, userPoolClientId, userPoolId } =
       new CognitoAuthorizer(this, 'cognito-file-upload-authorizer');
     const { fileUploadFn } = new FileUploadLambdaConstruct(
@@ -23,7 +23,7 @@ export class AwsEtlStack extends cdk.Stack {
       'lambda-file-upload-fn',
       {
         fileUploadTable: dynamoFileUploadTable,
-        // s3Bucket: bucket,
+        s3Bucket: bucket,
         userPoolClientId,
         userPoolId,
       }
