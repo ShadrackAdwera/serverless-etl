@@ -11,7 +11,7 @@ import * as path from 'path';
 
 interface ILambdaConstruct {
   fileUploadTable: ITable;
-  //s3Bucket: IBucket;
+  s3Bucket: IBucket;
   userPoolId: string;
   userPoolClientId: string;
 }
@@ -34,12 +34,12 @@ export class FileUploadLambdaConstruct extends Construct {
     this.fileUploadFn = this.createLambda(props);
   }
 
-  // private createS3PolicyStatement(props: ILambdaConstruct): PolicyStatement {
-  //   const lambdaPolicyStatement = new PolicyStatement();
-  //   lambdaPolicyStatement.addActions('s3:PutObject', 's3:GetObject');
-  //   lambdaPolicyStatement.addResources(`${props.s3Bucket.bucketArn}/*`);
-  //   return lambdaPolicyStatement;
-  // }
+  private createS3PolicyStatement(props: ILambdaConstruct): PolicyStatement {
+    const lambdaPolicyStatement = new PolicyStatement();
+    lambdaPolicyStatement.addActions('s3:PutObject', 's3:GetObject');
+    lambdaPolicyStatement.addResources(`${props.s3Bucket.bucketArn}/*`);
+    return lambdaPolicyStatement;
+  }
 
   private createLambda(props: ILambdaConstruct): NodejsFunction {
     const lambdFn = new NodejsFunction(this, 'file-upload-lambdafn', {
@@ -47,14 +47,14 @@ export class FileUploadLambdaConstruct extends Construct {
       environment: {
         DYNAMODB_TABLE_NAME: props.fileUploadTable.tableName,
         PRIMARY_KEY: 'id',
-        //S3_BUCKET: props.s3Bucket.bucketName,
+        S3_BUCKET: props.s3Bucket.bucketName,
         USERPOOL_ID: props.userPoolId,
         USERPOOL_CLIENT_ID: props.userPoolClientId,
       },
-      //initialPolicy: [this.createS3PolicyStatement(props)],
       ...getFnProps(),
     });
 
+    lambdFn.addToRolePolicy(this.createS3PolicyStatement(props));
     props.fileUploadTable.grantReadWriteData(lambdFn);
     return lambdFn;
   }
