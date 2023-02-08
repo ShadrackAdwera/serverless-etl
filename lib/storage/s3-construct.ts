@@ -1,3 +1,4 @@
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { Bucket, BucketEncryption, IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { randomUUID } from 'crypto';
@@ -13,6 +14,8 @@ export class EtlS3Construct extends Construct {
     const bucket = new Bucket(this, `aws-etl-${randomUUID()}-bucket`, {
       encryption: BucketEncryption['S3_MANAGED'],
       publicReadAccess: false,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy['DESTROY'],
     });
     return bucket;
   }
