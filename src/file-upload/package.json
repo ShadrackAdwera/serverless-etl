@@ -7,13 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "adwera",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.264.0",
     "@aws-sdk/client-s3": "^3.264.0",
     "@aws-sdk/s3-request-presigner": "^3.264.0",
-    "@aws-sdk/util-dynamodb": "^3.264.0",
+    "@aws-sdk/util-dynamodb": "^3.267.0",
+    "aws-jwt-verify": "^3.4.0",
     "aws-lambda": "^1.0.7",
     "axios": "^1.3.2",
     "uuid": "^9.0.0"
