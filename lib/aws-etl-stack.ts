@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { FileUploadApiGateway } from './api/file-upload';
 import { CognitoAuthorizer } from './auth/cognito-authorizer';
 import { FileUploadTable } from './database/file-upload-db';
+import { EtlFnLambdaConstruct } from './lambda/etl-fn';
 import { FileUploadLambdaConstruct } from './lambda/file-upload-fn';
 import { EtlS3Construct } from './storage/s3-construct';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
@@ -28,6 +29,11 @@ export class AwsEtlStack extends cdk.Stack {
         userPoolId,
       }
     );
+    new EtlFnLambdaConstruct(this, 'etl-fn-lambda', {
+      fileUploadTable: dynamoFileUploadTable,
+      userPoolClientId,
+      userPoolId,
+    });
     new FileUploadApiGateway(this, 'api-gateway-file-upload', {
       authorizer: cognitoAuthorizer,
       fileUploadFn,
