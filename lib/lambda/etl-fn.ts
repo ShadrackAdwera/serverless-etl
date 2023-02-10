@@ -1,6 +1,11 @@
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import {
+  FilterCriteria,
+  FilterRule,
+  Runtime,
+  StartingPosition,
+} from 'aws-cdk-lib/aws-lambda';
+import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import {
   NodejsFunction,
   NodejsFunctionProps,
@@ -34,7 +39,7 @@ export class EtlFnLambdaConstruct extends Construct {
 
   private createLambda(props: ILambdaConstruct): NodejsFunction {
     const lambdFn = new NodejsFunction(this, 'file-upload-lambdafn', {
-      entry: path.join(__dirname, '/../../src/file-upload/index.ts'),
+      entry: path.join(__dirname, '/../../src/etl/index.ts'),
       environment: {
         DYNAMODB_TABLE_NAME: props.fileUploadTable.tableName,
         USERPOOL_ID: props.userPoolId,
@@ -42,8 +47,14 @@ export class EtlFnLambdaConstruct extends Construct {
       },
       ...getFnProps(),
     });
-
-    props.fileUploadTable.grantReadWriteData(lambdFn);
+    lambdFn.addEventSource(
+      new DynamoEventSource(props.fileUploadTable, {
+        startingPosition: StartingPosition['LATEST'],
+        filters: [
+          FilterCriteria.filter({ eventName: FilterRule.isEqual('INSERT') }),
+        ],
+      })
+    );
     return lambdFn;
   }
 }
