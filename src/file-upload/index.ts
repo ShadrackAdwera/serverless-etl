@@ -55,7 +55,7 @@ exports.handler = async (
     const data = await fetchDataFromDynamoDb(payload['cognito:username']);
     return {
       body: JSON.stringify({
-        message: `GET Method ${randomUUID()}`,
+        data,
       }),
       statusCode: 200,
     };
