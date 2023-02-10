@@ -3,8 +3,6 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import {
   PutItemCommand,
   PutItemCommandInput,
-  QueryCommand,
-  QueryCommandInput,
   ScanCommand,
   ScanCommandInput,
 } from '@aws-sdk/client-dynamodb';
@@ -63,16 +61,16 @@ const sendFileUrlToDynamoDB = async ({ fileUrl, userId }: IDynamodbPost) => {
 };
 
 const fetchDataFromDynamoDb = async (userId: string) => {
-  const params: QueryCommandInput = {
+  const params: ScanCommandInput = {
     TableName: process.env.DYNAMODB_TABLE_NAME,
-    KeyConditionExpression: 'userId = :userId',
+    FilterExpression: 'userId = :userId',
     ExpressionAttributeValues: {
       ':userId': { S: userId },
     },
   };
 
   try {
-    const { Items } = await ddbClient.send(new QueryCommand(params));
+    const { Items } = await ddbClient.send(new ScanCommand(params));
     return Items
       ? {
           count: Items.length,
