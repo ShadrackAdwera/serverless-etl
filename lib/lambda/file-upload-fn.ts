@@ -46,7 +46,6 @@ export class FileUploadLambdaConstruct extends Construct {
       entry: path.join(__dirname, '/../../src/file-upload/index.ts'),
       environment: {
         DYNAMODB_TABLE_NAME: props.fileUploadTable.tableName,
-        PRIMARY_KEY: 'id',
         S3_BUCKET: props.s3Bucket.bucketName,
         USERPOOL_ID: props.userPoolId,
         USERPOOL_CLIENT_ID: props.userPoolClientId,
