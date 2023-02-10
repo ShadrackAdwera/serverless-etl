@@ -1,18 +1,20 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import {
+  PutItemCommand,
+  PutItemCommandInput,
+  QueryCommand,
+  QueryCommandInput,
+  ScanCommand,
+  ScanCommandInput,
+} from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import axios from 'axios';
 
 import { s3Client } from '../libs/s3Client';
 import { ddbClient } from '../libs/dynamodbClient';
 import { randomUUID } from 'crypto';
 
-// export const bucketParams = {
-//   Bucket: `test-bucket-${Math.ceil(Math.random() * 10 ** 10)}`,
-//   Key: `test-object-${Math.ceil(Math.random() * 10 ** 10)}`,
-//   Body: 'BODY',
-// };
 interface IDynamodbPost {
   userId: string;
   fileUrl: string;
@@ -60,4 +62,31 @@ const sendFileUrlToDynamoDB = async ({ fileUrl, userId }: IDynamodbPost) => {
   }
 };
 
-export { fetchPresignedUrlAndUploadToS3, sendFileUrlToDynamoDB };
+const fetchDataFromDynamoDb = async (userId: string) => {
+  const params: QueryCommandInput = {
+    TableName: process.env.DYNAMODB_TABLE_NAME,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': { S: userId },
+    },
+  };
+
+  try {
+    const { Items } = await ddbClient.send(new QueryCommand(params));
+    return Items
+      ? {
+          count: Items.length,
+          items: Items.map((Item) => unmarshall(Item)),
+        }
+      : { message: 'No items found' };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export {
+  fetchPresignedUrlAndUploadToS3,
+  sendFileUrlToDynamoDB,
+  fetchDataFromDynamoDb,
+};

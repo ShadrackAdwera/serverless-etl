@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 
 import {
+  fetchDataFromDynamoDb,
   fetchPresignedUrlAndUploadToS3,
   sendFileUrlToDynamoDB,
 } from './controllers/file-upload-controllers';
@@ -51,6 +52,7 @@ exports.handler = async (
   const payload = await decodeCogitoPayload(jwt);
 
   if (event.httpMethod === 'GET') {
+    const data = await fetchDataFromDynamoDb(payload['cognito:username']);
     return {
       body: JSON.stringify({
         message: `GET Method ${randomUUID()}`,
