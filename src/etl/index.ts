@@ -1,4 +1,5 @@
 import { Context, DynamoDBStreamEvent } from 'aws-lambda';
+import { fetchEtlSendToEventBridge } from './controllers/etl-controllers';
 
 exports.handler = async (event: DynamoDBStreamEvent, context: Context) => {
   console.log(`Event \n ${JSON.stringify(event, undefined, 2)}`);
@@ -7,6 +8,7 @@ exports.handler = async (event: DynamoDBStreamEvent, context: Context) => {
     event.Records.forEach((record) => {
       console.log(`RECORD: ${JSON.stringify(record, undefined, 2)}`);
     });
+    await fetchEtlSendToEventBridge(event.Records);
     return;
   } catch (error) {
     console.error('etl error', error);
