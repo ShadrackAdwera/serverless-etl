@@ -33,6 +33,7 @@ export class AwsEtlStack extends cdk.Stack {
       fileUploadTable: dynamoFileUploadTable,
       userPoolClientId,
       userPoolId,
+      bucket,
     });
     new FileUploadApiGateway(this, 'api-gateway-file-upload', {
       authorizer: cognitoAuthorizer,
