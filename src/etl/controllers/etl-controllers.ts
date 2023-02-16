@@ -1,10 +1,17 @@
 import { DynamoDBRecord } from 'aws-lambda';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+  PutEventsCommand,
+  PutEventsCommandInput,
+  PutEventsCommandOutput,
+} from '@aws-sdk/client-eventbridge';
+
 import axios from 'axios';
 
 import { s3Client } from './../libs/s3Client';
 import { CsvFileReader } from '../utils/CsvReader';
+import { ebClient } from '../libs/ebClient';
 
 /*
 {
@@ -75,6 +82,7 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
         const eplData = csvReader
           .read()
           .filter((r) => r.homeTeam !== undefined && r.homeScored !== null);
+
         for (const eplDt of eplData) {
           const {
             awayScored,
@@ -85,7 +93,26 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
             ref,
             winner,
           } = eplDt;
-          // send to EventBridge
+          const params: PutEventsCommandInput = {
+            Entries: [
+              {
+                Source: process.env.EVENT_SOURCE,
+                Detail: JSON.stringify({
+                  awayScored,
+                  awayTeam,
+                  homeScored,
+                  homeTeam,
+                  matchDay,
+                  ref,
+                  winner,
+                }),
+                DetailType: process.env.EVENT_DETAILTYPE,
+                Resources: [],
+                EventBusName: process.env.EVENT_BUSNAME,
+              },
+            ],
+          };
+          await ebClient.send(new PutEventsCommand(params));
         }
         //return resp.data;
       }
