@@ -12,6 +12,7 @@ import axios from 'axios';
 import { s3Client } from './../libs/s3Client';
 import { CsvFileReader } from '../utils/CsvReader';
 import { ebClient } from '../libs/ebClient';
+import { randomUUID } from 'crypto';
 
 /*
 {
@@ -98,6 +99,7 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
               {
                 Source: process.env.EVENT_SOURCE,
                 Detail: JSON.stringify({
+                  id: randomUUID(),
                   awayScored,
                   awayTeam,
                   homeScored,
