@@ -14,6 +14,11 @@ import {
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import {
+  EVENT_BUSNAME,
+  EVENT_DETAILTYPE,
+  EVENT_SOURCE,
+} from '../events/eventbus';
 
 interface ILambdaConstruct {
   fileUploadTable: ITable;
@@ -55,6 +60,9 @@ export class EtlFnLambdaConstruct extends Construct {
         USERPOOL_ID: props.userPoolId,
         S3_BUCKET_NAME: props.bucket.bucketName,
         USERPOOL_CLIENT_ID: props.userPoolClientId,
+        EVENT_SOURCE: EVENT_SOURCE,
+        EVENT_DETAILTYPE: EVENT_DETAILTYPE,
+        EVENT_BUSNAME: EVENT_BUSNAME,
       },
       ...getFnProps(),
     });
