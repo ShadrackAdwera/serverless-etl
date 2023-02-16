@@ -11,7 +11,7 @@ interface IEventBusProps {
   target: IQueue;
 }
 
-export class EtlToSqlsEventBus extends Construct {
+export class EtlToSqsEventBus extends Construct {
   constructor(scope: Construct, id: string, props: IEventBusProps) {
     super(scope, id);
     // event bus
