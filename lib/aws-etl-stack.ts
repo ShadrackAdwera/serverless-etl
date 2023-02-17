@@ -50,24 +50,23 @@ export class AwsEtlStack extends cdk.Stack {
     const { etlQueue } = new EtlQueue(this, 'etl-queue-from-eb', {
       consumer: dataLambdaFn,
     });
-    const { eventBus } = new EtlToSqsEventBus(this, 'etl-sqs-eb', {
-      target: etlQueue,
-    });
-    new EtlFnLambdaConstruct(this, 'etl-fn-lambda', {
+    const { etlLambdaFn } = new EtlFnLambdaConstruct(this, 'etl-fn-lambda', {
       fileUploadTable: dynamoFileUploadTable,
       userPoolClientId,
       userPoolId,
       bucket,
-      eventBus,
     });
+    new EtlToSqsEventBus(this, 'etl-sqs-eb', {
+      target: etlQueue,
+      publisherFunction: etlLambdaFn,
+    });
+
     new FileUploadApiGateway(this, 'api-gateway-file-upload', {
       authorizer: cognitoAuthorizer,
       fileUploadFn,
+    });
+    new DataApiGateway(this, 'data-api-gateway', {
       dataFn: dataLambdaFn,
     });
-    // new DataApiGateway(this, 'data-api-gateway', {
-    //   authorizer: cognitoAuthorizer,
-    //   dataFn: dataLambdaFn,
-    // });
   }
 }
