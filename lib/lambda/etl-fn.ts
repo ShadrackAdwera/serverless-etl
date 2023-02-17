@@ -1,4 +1,5 @@
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { IEventBus } from 'aws-cdk-lib/aws-events';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import {
   FilterCriteria,
@@ -24,6 +25,7 @@ interface ILambdaConstruct {
   fileUploadTable: ITable;
   bucket: IBucket;
   userPoolId: string;
+  eventBus: IEventBus;
   userPoolClientId: string;
 }
 
@@ -52,6 +54,15 @@ export class EtlFnLambdaConstruct extends Construct {
     return lambdaPolicyStatement;
   }
 
+  private createEventBusPolicyStatement(
+    props: ILambdaConstruct
+  ): PolicyStatement {
+    const lambdaEventBusStatement = new PolicyStatement();
+    lambdaEventBusStatement.addActions('events:PutEvents');
+    lambdaEventBusStatement.addResources(`${props.eventBus.eventBusArn}/*`);
+    return lambdaEventBusStatement;
+  }
+
   private createLambda(props: ILambdaConstruct): NodejsFunction {
     const lambdFn = new NodejsFunction(this, 'file-upload-lambdafn', {
       entry: path.join(__dirname, '/../../src/etl/index.ts'),
@@ -75,6 +86,7 @@ export class EtlFnLambdaConstruct extends Construct {
       })
     );
     lambdFn.addToRolePolicy(this.createS3PolicyStatement(props));
+    lambdFn.addToRolePolicy(this.createEventBusPolicyStatement(props));
     return lambdFn;
   }
 }
