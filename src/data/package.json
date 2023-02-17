@@ -13,5 +13,8 @@
     "@aws-sdk/client-eventbridge": "^3.272.0",
     "@aws-sdk/util-dynamodb": "^3.272.0",
     "aws-lambda": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.110"
   }
 }
