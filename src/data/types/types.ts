@@ -8,3 +8,18 @@ export type EplResults = {
   winner: string;
   ref: string;
 };
+
+export type ISQSEvent = {
+  event: {
+    detail: {
+      id: string;
+      awayScored: number;
+      awayTeam: string;
+      homeScored: number;
+      homeTeam: string;
+      matchDay: string;
+      ref: string;
+      winner: string;
+    };
+  };
+};
