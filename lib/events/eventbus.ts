@@ -1,3 +1,4 @@
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { EventBus, IEventBus, Rule } from 'aws-cdk-lib/aws-events';
 import { SqsQueue } from 'aws-cdk-lib/aws-events-targets';
 import { IQueue } from 'aws-cdk-lib/aws-sqs';
@@ -12,13 +13,15 @@ interface IEventBusProps {
 }
 
 export class EtlToSqsEventBus extends Construct {
+  public readonly eventBus: IEventBus;
   constructor(scope: Construct, id: string, props: IEventBusProps) {
     super(scope, id);
     // event bus
-    const bus = this.generateEventBus();
+    this.eventBus = this.generateEventBus();
     // rule
-    const etlToSqsBasketRule = this.generateRule(bus);
+    const etlToSqsBasketRule = this.generateRule(this.eventBus);
     etlToSqsBasketRule.addTarget(new SqsQueue(props.target));
+    etlToSqsBasketRule.applyRemovalPolicy(RemovalPolicy['DESTROY']);
   }
 
   private generateEventBus(): IEventBus {
