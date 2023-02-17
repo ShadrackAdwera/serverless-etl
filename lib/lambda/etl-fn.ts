@@ -25,7 +25,6 @@ interface ILambdaConstruct {
   fileUploadTable: ITable;
   bucket: IBucket;
   userPoolId: string;
-  eventBus: IEventBus;
   userPoolClientId: string;
 }
 
@@ -41,10 +40,10 @@ const getFnProps = (): NodejsFunctionProps => {
 };
 
 export class EtlFnLambdaConstruct extends Construct {
-  public readonly fileUploadFn: NodejsFunction;
+  public readonly etlLambdaFn: NodejsFunction;
   constructor(scope: Construct, id: string, props: ILambdaConstruct) {
     super(scope, id);
-    this.fileUploadFn = this.createLambda(props);
+    this.etlLambdaFn = this.createLambda(props);
   }
 
   private createS3PolicyStatement(props: ILambdaConstruct): PolicyStatement {
@@ -52,15 +51,6 @@ export class EtlFnLambdaConstruct extends Construct {
     lambdaPolicyStatement.addActions('s3:GetObject');
     lambdaPolicyStatement.addResources(`${props.bucket.bucketArn}/*`);
     return lambdaPolicyStatement;
-  }
-
-  private createEventBusPolicyStatement(
-    props: ILambdaConstruct
-  ): PolicyStatement {
-    const lambdaEventBusStatement = new PolicyStatement();
-    lambdaEventBusStatement.addActions('events:PutEvents');
-    lambdaEventBusStatement.addResources(`${props.eventBus.eventBusArn}/*`);
-    return lambdaEventBusStatement;
   }
 
   private createLambda(props: ILambdaConstruct): NodejsFunction {
@@ -86,7 +76,6 @@ export class EtlFnLambdaConstruct extends Construct {
       })
     );
     lambdFn.addToRolePolicy(this.createS3PolicyStatement(props));
-    lambdFn.addToRolePolicy(this.createEventBusPolicyStatement(props));
     return lambdFn;
   }
 }
