@@ -10,16 +10,14 @@ export type EplResults = {
 };
 
 export type ISQSEvent = {
-  event: {
-    detail: {
-      id: string;
-      awayScored: number;
-      awayTeam: string;
-      homeScored: number;
-      homeTeam: string;
-      matchDay: string;
-      ref: string;
-      winner: string;
-    };
+  detail: {
+    id: string;
+    awayScored: number;
+    awayTeam: string;
+    homeScored: number;
+    homeTeam: string;
+    matchDay: string;
+    ref: string;
+    winner: string;
   };
 };

@@ -69,7 +69,7 @@ const createMatch = async (
       Item: marshall({ ...requestBody, id: randomUUID() } || {}),
     };
   } else {
-    const match = event.event.detail;
+    const match = event.detail;
     params = {
       TableName: process.env.DYNAMODB_DATA_TABLE_NAME,
       Item: marshall({ ...match } || {}),
