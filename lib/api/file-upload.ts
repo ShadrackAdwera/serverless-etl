@@ -7,11 +7,11 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import { IFunction } from 'aws-cdk-lib/aws-lambda';
-import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 interface IFileUpload {
   fileUploadFn: IFunction;
+  dataFn: IFunction;
   authorizer: IAuthorizer;
 }
 
@@ -117,5 +117,12 @@ export class FileUploadApiGateway extends Construct {
     const fileUpload = fileUploadApiGateway.root.addResource('file-upload');
     fileUpload.addMethod('GET', httpIntegration, options);
     fileUpload.addMethod('PUT', httpIntegration, options);
+    const dataRestApi = fileUploadApiGateway.root.addResource('data'); // /data
+    dataRestApi.addMethod('GET', httpIntegration, options);
+    dataRestApi.addMethod('POST', httpIntegration, options);
+    const dataRes = dataRestApi.addResource('{id}'); // /data/:id
+    dataRes.addMethod('GET', httpIntegration, options);
+    dataRes.addMethod('PATCH', httpIntegration, options);
+    dataRes.addMethod('DELETE', httpIntegration, options);
   }
 }
