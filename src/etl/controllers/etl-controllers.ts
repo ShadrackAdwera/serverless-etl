@@ -76,6 +76,11 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
         console.log(signedUrl);
         const resp = await axios.get(signedUrl);
         console.log(`\nResponse returned by signed URL: ${await resp.data}\n`);
+        console.log({
+          Source: process.env.EVENT_SOURCE,
+          DetailType: process.env.EVENT_DETAILTYPE,
+          EventBusName: process.env.EVENT_BUSNAME,
+        });
         const buffer = Buffer.from(resp.data, 'utf-8');
 
         // extract data from document body

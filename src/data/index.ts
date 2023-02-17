@@ -3,7 +3,6 @@ import {
   APIGatewayEvent,
   APIGatewayProxyResult,
   Context,
-  EventBridgeEvent,
   SQSEvent,
 } from 'aws-lambda';
 
@@ -14,23 +13,24 @@ import {
   updateMatch,
   deleteMatch,
 } from './controllers/data-controllers';
-import { EplResults } from './types/types';
+import { EplResults, ISQSEvent } from './types/types';
 
 exports.handler = async (
-  event: APIGatewayEvent | EventBridgeEvent<any, EplResults> | SQSEvent,
+  event: APIGatewayEvent | SQSEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
   console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
   console.log(`Event: ${JSON.stringify(event, undefined, 2)}`);
-  if ('detail-type' in event) {
-    await eventBridgeInvocation(event);
-    return {
-      statusCode: 201,
-      body: JSON.stringify({
-        message: 'Match added!',
-      }),
-    };
-  } else if ('Records' in event) {
+  // if ('detail-type' in event) {
+  //   await eventBridgeInvocation(event);
+  //   return {
+  //     statusCode: 201,
+  //     body: JSON.stringify({
+  //       message: 'Match added!',
+  //     }),
+  //   };
+  // } else
+  if ('Records' in event) {
     await handleSqsEvent(event);
     return {
       statusCode: 201,
@@ -48,19 +48,18 @@ const handleSqsEvent = async (event: SQSEvent) => {
   console.log('SQS Event: ', event.Records);
 
   for (const record of event.Records) {
-    console.log('SQS Record: ', record);
-    const data = JSON.parse(record.body) as EplResults;
+    const data = JSON.parse(record.body) as ISQSEvent;
     await createMatch(data);
   }
 };
 
 // Can receive data from EventBridgeEvent
-const eventBridgeInvocation = async (
-  event: EventBridgeEvent<any, EplResults>
-) => {
-  console.log(`Event Bridge Invokation event:`, event);
-  await createMatch(event.detail);
-};
+// const eventBridgeInvocation = async (
+//   event: EventBridgeEvent<any, EplResults>
+// ) => {
+//   console.log(`Event Bridge Invokation event:`, event);
+//   await createMatch(event.detail);
+// };
 
 const apiGatewayInvocation = async (
   event: APIGatewayEvent
@@ -71,6 +70,7 @@ const apiGatewayInvocation = async (
       message: `Invalid method / route`,
     }),
   };
+  // add auth middleware
   try {
     switch (event.httpMethod) {
       case 'GET':
