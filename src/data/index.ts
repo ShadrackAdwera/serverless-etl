@@ -4,6 +4,7 @@ import {
   APIGatewayProxyResult,
   Context,
   SQSEvent,
+  EventBridgeEvent,
 } from 'aws-lambda';
 
 import {
@@ -13,24 +14,24 @@ import {
   updateMatch,
   deleteMatch,
 } from './controllers/data-controllers';
-import { EplResults, ISQSEvent } from './types/types';
+import { EplResults } from './types/types';
 
 exports.handler = async (
-  event: APIGatewayEvent | SQSEvent,
+  event: APIGatewayEvent | EventBridgeEvent<any, EplResults> | SQSEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
   console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
   console.log(`Event: ${JSON.stringify(event, undefined, 2)}`);
-  // if ('detail-type' in event) {
-  //   await eventBridgeInvocation(event);
-  //   return {
-  //     statusCode: 201,
-  //     body: JSON.stringify({
-  //       message: 'Match added!',
-  //     }),
-  //   };
-  // } else
-  if ('Records' in event) {
+  if ('detail-type' in event) {
+    await eventBridgeInvocation(event);
+    return {
+      statusCode: 201,
+      body: JSON.stringify({
+        message: 'Match added!',
+      }),
+    };
+  } else if ('Records' in event) {
+    console.log('Invoking SQS Event . . .');
     await handleSqsEvent(event);
     return {
       statusCode: 201,
@@ -48,18 +49,18 @@ const handleSqsEvent = async (event: SQSEvent) => {
   console.log('SQS Event: ', event.Records);
 
   for (const record of event.Records) {
-    const data = JSON.parse(record.body) as ISQSEvent;
+    const data = JSON.parse(record.body) as EplResults;
     await createMatch(data);
   }
 };
 
 // Can receive data from EventBridgeEvent
-// const eventBridgeInvocation = async (
-//   event: EventBridgeEvent<any, EplResults>
-// ) => {
-//   console.log(`Event Bridge Invokation event:`, event);
-//   await createMatch(event.detail);
-// };
+const eventBridgeInvocation = async (
+  event: EventBridgeEvent<any, EplResults>
+) => {
+  console.log(`Event Bridge Invokation event:`, event);
+  await createMatch(event.detail);
+};
 
 const apiGatewayInvocation = async (
   event: APIGatewayEvent

@@ -76,11 +76,6 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
         console.log(signedUrl);
         const resp = await axios.get(signedUrl);
         console.log(`\nResponse returned by signed URL: ${await resp.data}\n`);
-        console.log({
-          Source: process.env.EVENT_SOURCE,
-          DetailType: process.env.EVENT_DETAILTYPE,
-          EventBusName: process.env.EVENT_BUSNAME,
-        });
         const buffer = Buffer.from(resp.data, 'utf-8');
 
         // extract data from document body
@@ -88,39 +83,19 @@ const fetchEtlSendToEventBridge = async (records: DynamoDBRecord[]) => {
         const eplData = csvReader
           .read()
           .filter((r) => r.homeTeam !== undefined && r.homeScored !== null);
-
-        for (const eplDt of eplData) {
-          const {
-            awayScored,
-            awayTeam,
-            homeScored,
-            homeTeam,
-            matchDay,
-            ref,
-            winner,
-          } = eplDt;
-          const params: PutEventsCommandInput = {
-            Entries: [
-              {
-                Source: process.env.EVENT_SOURCE,
-                Detail: JSON.stringify({
-                  id: randomUUID(),
-                  awayScored,
-                  awayTeam,
-                  homeScored,
-                  homeTeam,
-                  matchDay,
-                  ref,
-                  winner,
-                }),
-                DetailType: process.env.EVENT_DETAILTYPE,
-                Resources: [],
-                EventBusName: process.env.EVENT_BUSNAME,
-              },
-            ],
-          };
-          await ebClient.send(new PutEventsCommand(params));
-        }
+        const params: PutEventsCommandInput = {
+          Entries: [
+            {
+              Source: process.env.EVENT_SOURCE,
+              Detail: JSON.stringify(eplData),
+              DetailType: process.env.EVENT_DETAILTYPE,
+              Resources: [],
+              EventBusName: process.env.EVENT_BUSNAME,
+            },
+          ],
+        };
+        await ebClient.send(new PutEventsCommand(params));
+        console.log('Data sent to EVENT BRIDGE ');
         //return resp.data;
       }
     }

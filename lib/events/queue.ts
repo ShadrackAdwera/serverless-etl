@@ -7,7 +7,6 @@ import { Construct } from 'constructs';
 interface QueueProps {
   consumer: IFunction;
 }
-
 export class EtlQueue extends Construct {
   public readonly etlQueue: IQueue;
   constructor(scope: Construct, id: string, props: QueueProps) {

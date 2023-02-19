@@ -17,7 +17,7 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { APIGatewayEvent } from 'aws-lambda';
 import { randomUUID } from 'crypto';
-import { EplResults, ISQSEvent } from '../types/types';
+import { EplResults } from '../types/types';
 
 //TODO: Write unit tests for these controllers
 const getMatchById = async (matchId: string) => {
@@ -57,7 +57,7 @@ const getMatches = async () => {
 };
 
 const createMatch = async (
-  event: APIGatewayEvent | ISQSEvent
+  event: APIGatewayEvent | EplResults
 ): Promise<PutItemCommandOutput> => {
   let params: PutItemCommandInput;
 
@@ -69,10 +69,9 @@ const createMatch = async (
       Item: marshall({ ...requestBody, id: randomUUID() } || {}),
     };
   } else {
-    const match = event.detail;
     params = {
       TableName: process.env.DYNAMODB_DATA_TABLE_NAME,
-      Item: marshall({ ...match } || {}),
+      Item: marshall({ ...event } || {}),
     };
   }
   try {
